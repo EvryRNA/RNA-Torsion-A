@@ -55,3 +55,18 @@ with:
 - `--pred_path`: Path to a `.pdb` file of a prediction or folder containing multiple `.pdb` files.
 - `--native_path`: Path to the `.pdb` native file.
 - `--out_path`: Path to a `.csv` file where the output will be saved.
+
+## Examples
+
+There are examples provided in the Makefile. 
+
+```Makefile
+run:
+	python -m src.rna_torsion_a_cli --in_pdb=data/preds/3drna_rp11.pdb --out_path=data/out.csv
+run_all:
+	python -m src.rna_torsion_a_cli --in_pdb=data/preds --out_path=data/out.csv
+run_mae:
+	python -m src.mae_metric_cli --pred_path=data/preds --native_path=data/rp11.pdb --out_path=data/out_mae.csv
+```
+
+## Citation
