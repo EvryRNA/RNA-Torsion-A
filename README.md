@@ -38,6 +38,12 @@ with:
 - `--out_path`: Path to a `.json` file where the output will be saved.
 
 
+### MAE as metric
+
+We also provide the computation of the MAE (mean average error) metric.
+
+![](./img/mae_schema.png)
+
 There is also a CLI to compute the `MAE` metric:
 
 ```bash
