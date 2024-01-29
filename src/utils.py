@@ -17,6 +17,7 @@ def save_json(content: Dict, path: str):
     with open(path_to_save, "w") as file:
         json.dump(content, file)
 
+
 def read_json(path: str, to_clean: bool = False) -> Dict:
     """Read the json file.
     Args
@@ -34,6 +35,7 @@ def read_json(path: str, to_clean: bool = False) -> Dict:
         print("Not a json file")
         return {}
 
+
 def convert_angles_string_to_float(angles: Dict):
     """
     Convert the string to float and replace the NA values by np.nan
@@ -41,6 +43,9 @@ def convert_angles_string_to_float(angles: Dict):
     clean_angles = angles.copy()
     for rna_name, rna in angles.items():
         for angle_name, angles in rna["angles"].items():
-            new_angles = [float(angle) if angle not in ["NA", None, "", "BII", "BI"] else np.nan for angle in angles]
+            new_angles = [
+                float(angle) if angle not in ["NA", None, "", "BII", "BI"] else np.nan
+                for angle in angles
+            ]
             clean_angles[rna_name]["angles"][angle_name] = new_angles
     return clean_angles

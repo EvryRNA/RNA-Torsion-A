@@ -37,9 +37,13 @@ class MAEHelper:
         scores_mae = {}
         if "alpha" in pred_angles:
             # It means the first keys are not the RNA names
-            pred_angles, gt_angles = {"name": {"angles": pred_angles}}, {"name": {"angles": gt_angles}}
+            pred_angles, gt_angles = {"name": {"angles": pred_angles}}, {
+                "name": {"angles": gt_angles}
+            }
         angles = list(pred_angles[list(pred_angles.keys())[0]]["angles"].keys())
-        matrix_preds, matrix_gt = MAEHelper.convert_dict_to_array(pred_angles), MAEHelper.convert_dict_to_array(gt_angles)
+        matrix_preds, matrix_gt = MAEHelper.convert_dict_to_array(
+            pred_angles
+        ), MAEHelper.convert_dict_to_array(gt_angles)
         scores = MAEHelper.mae(matrix_preds, matrix_gt)
         for index, score in enumerate(scores):
             scores_mae[angles[index]] = score
@@ -50,17 +54,19 @@ class MAEHelper:
         return scores_mae
 
     @staticmethod
-    def compute_mae_by_rna(
-            pred_angles: Dict, gt_angles: Dict
-    ):
+    def compute_mae_by_rna(pred_angles: Dict, gt_angles: Dict):
         """
         Compute the MAE RNA by RNA
         """
         assert len(pred_angles) == len(gt_angles)
         scores_mae = {}
         angles = list(pred_angles[list(pred_angles.keys())[0]]["angles"].keys())
-        matrix_preds, matrix_gt = MAEHelper.convert_dict_to_array(pred_angles), MAEHelper.convert_dict_to_array(gt_angles)
-        scores = MAEHelper.mae(matrix_preds, matrix_gt, all_mean=False).reshape(len(pred_angles), len(angles), -1)
+        matrix_preds, matrix_gt = MAEHelper.convert_dict_to_array(
+            pred_angles
+        ), MAEHelper.convert_dict_to_array(gt_angles)
+        scores = MAEHelper.mae(matrix_preds, matrix_gt, all_mean=False).reshape(
+            len(pred_angles), len(angles), -1
+        )
         scores = np.nanmean(scores, axis=-1)
         names = list(pred_angles.keys())
         for index, score in enumerate(scores):
@@ -85,12 +91,22 @@ class MAEHelper:
         return scores
 
     @staticmethod
-    def convert_dict_to_array(preds_dict: Dict, padding_length: int = 512) -> np.ndarray:
+    def convert_dict_to_array(
+        preds_dict: Dict, padding_length: int = 512
+    ) -> np.ndarray:
         """
         Convert the dictionary of angles to a tensor
         """
         batch_size = len(preds_dict)
-        preds = np.stack([np.array(MAEHelper.add_padding(preds_dict[k]["angles"][a], padding_length)) for k in preds_dict for a in preds_dict[k]["angles"]])
+        preds = np.stack(
+            [
+                np.array(
+                    MAEHelper.add_padding(preds_dict[k]["angles"][a], padding_length)
+                )
+                for k in preds_dict
+                for a in preds_dict[k]["angles"]
+            ]
+        )
         seq_len = preds.shape[-1]
         preds = preds.reshape(batch_size, seq_len, -1)
         return preds
@@ -101,11 +117,13 @@ class MAEHelper:
         Add padding to the predictions
         """
         preds_padded = [np.nan for _ in range(padding_length)]
-        preds_padded[:len(preds)] = preds
+        preds_padded[: len(preds)] = preds
         return preds_padded
 
     @staticmethod
-    def mae(pred_angles: np.ndarray, gt_angles: np.ndarray, all_mean: bool = True) -> np.ndarray:
+    def mae(
+        pred_angles: np.ndarray, gt_angles: np.ndarray, all_mean: bool = True
+    ) -> np.ndarray:
         """
         Compute the Mean Absolute Error between two angles, using:
                 MAE = min(abs(pred - gt), 360 - abs(pred - gt))
@@ -118,9 +136,8 @@ class MAEHelper:
         min_mae = score_mae.min(axis=0)
         if not all_mean:
             return min_mae
-        score_mae_all_angles = np.nanmean(min_mae, axis=(0,1))
+        score_mae_all_angles = np.nanmean(min_mae, axis=(0, 1))
         return score_mae_all_angles
-
 
     @staticmethod
     def get_arguments():

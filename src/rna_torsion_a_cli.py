@@ -8,6 +8,7 @@ from src.rna_torsionBERT_helper import RNATorsionBERTHelper
 from loguru import logger
 import numpy as np
 import pandas as pd
+import tqdm
 
 
 class RNATorsionACLI:
@@ -38,16 +39,17 @@ class RNATorsionACLI:
 
     def run(self):
         all_scores = {"RNA": [], "RNA-Torsion-A": []}
-        for in_path in self.list_files:
+        for in_path in tqdm.tqdm(self.list_files):
             score = self.compute_rna_torsion_a(in_path)
             all_scores["RNA"].append(os.path.basename(in_path))
             all_scores["RNA-Torsion-A"].append(score)
-        all_scores = pd.DataFrame(all_scores, columns=["RNA-Torsion-A", "RNA"]).set_index("RNA")
+        all_scores = pd.DataFrame(
+            all_scores, columns=["RNA-Torsion-A", "RNA"]
+        ).set_index("RNA")
         if self.out_path is not None:
             logger.info(f"Saved the output to {self.out_path}")
             all_scores.to_csv(self.out_path, index=True)
         return all_scores
-
 
     def compute_rna_torsion_a(self, in_pdb: str) -> float:
         """
@@ -62,10 +64,11 @@ class RNATorsionACLI:
         experimental_angles = dssr_output["angles"]
         torsionBERT_helper = RNATorsionBERTHelper()
         torsionBERT_output = torsionBERT_helper.predict(sequence)
-        mae_per_angle = MAEHelper.compute_mae_from_dict(experimental_angles , torsionBERT_output)
+        mae_per_angle = MAEHelper.compute_mae_from_dict(
+            experimental_angles, torsionBERT_output
+        )
         mae = np.mean(list(mae_per_angle.values()))
         return mae
-
 
     @staticmethod
     def get_args():
